@@ -264,12 +264,13 @@ match_colon(<< _, Rest/bits >>, N) ->
 match_colon(_, _) ->
 	nomatch.
 
-parse_hd_name(<< C, Rest/bits >>, S, M, P, Q, V, H, SoFar) ->
-	case C of
+parse_hd_name(<< C0, Rest/bits >>, S, M, P, Q, V, H, SoFar) ->
+	case C0 of
 		$: -> parse_hd_before_value(Rest, S, M, P, Q, V, H, SoFar);
 		$\s -> parse_hd_name_ws(Rest, S, M, P, Q, V, H, SoFar);
 		$\t -> parse_hd_name_ws(Rest, S, M, P, Q, V, H, SoFar);
-		?INLINE_LOWERCASE(parse_hd_name, Rest, S, M, P, Q, V, H, SoFar)
+		C ->
+      ?LOWER(parse_hd_name, Rest, S, M, P, Q, V, H, SoFar)
 	end.
 
 parse_hd_name_ws(<< C, Rest/bits >>, S, M, P, Q, V, H, Name) ->
@@ -393,9 +394,7 @@ parse_host(<< $:, Rest/bits >>, false, Acc) ->
 parse_host(<< $], Rest/bits >>, true, Acc) ->
 	parse_host(Rest, false, << Acc/binary, $] >>);
 parse_host(<< C, Rest/bits >>, E, Acc) ->
-	case C of
-		?INLINE_LOWERCASE(parse_host, Rest, E, Acc)
-	end.
+  ?LOWER(parse_host, Rest, E, Acc).
 
 %% End of request parsing.
 %%
